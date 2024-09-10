@@ -7,7 +7,7 @@ dotenv.config()
 
 const app = express();
 
-let bucketName = process.env.MINIO_DEFAULT_BUCKET
+let bucketName = `${process.env.MINIO_DEFAULT_BUCKET}`
 
 let minioClient: minio.Client;
 
