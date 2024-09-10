@@ -17,14 +17,14 @@ const init = async () => {
   // Once you deploy a MinIO service in the same project with this app,
   // Zeabur will automatically set these environment variables for you.
 
-  let endPoint = process.env.STORAGE_ENDPOINT
+  let endPoint = process.env.MINIO_CONSOLE_URL
   if (!endPoint) {
     console.info('STORAGE_ENDPOINT is not set. Did you deploy a MinIO service?')
     console.info('If you are running this app locally, you can get the endpoint from the "domain" tab of MinIO service in the Zeabur dashboard.')
     process.exit(1)
   }
 
-  let portStr = process.env.STORAGE_PORT
+  let portStr = '9000'
   if (!portStr) {
     console.info('STORAGE_PORT is not set. Did you deploy a MinIO service?')
     console.info('If you are running this app locally, you can get the port from the "domain" tab of MinIO service in the Zeabur dashboard.')
@@ -32,21 +32,21 @@ const init = async () => {
   }
   const port = parseInt(portStr)
 
-  const accessKey = process.env.STORAGE_USER
+  const accessKey = process.env.MINIO_USERNAME
   if (!accessKey) {
     console.info('STORAGE_USER is not set. Did you deploy a MinIO service?')
     console.info('If you are running this app locally, you can get the access key from the "connect" tab of MinIO service in the Zeabur dashboard.')
     process.exit(1)
   }
 
-  const secretKey = process.env.STORAGE_PASSWORD
+  const secretKey = process.env.MINIO_PASSWORD
   if (!secretKey) {
     console.info('STORAGE_PASSWORD is not set. Did you deploy a MinIO service?')
     console.info('If you are running this app locally, you can get the secret key from the "connect" tab of MinIO service in the Zeabur dashboard.')
     process.exit(1)
   }
 
-  const useSSLStr = process.env.STORAGE_USE_SSL
+  const useSSLStr = undefined
   if(useSSLStr === undefined) {
     console.info('STORAGE_USE_SSL is not set. Did you deploy a MinIO service?')
     console.info('If you are running this app locally, you can get the useSSL value from the "connect" tab of MinIO service in the Zeabur dashboard.')
