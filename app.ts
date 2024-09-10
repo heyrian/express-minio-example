@@ -17,9 +17,9 @@ const init = async () => {
   // Once you deploy a MinIO service in the same project with this app,
   // Zeabur will automatically set these environment variables for you.
 
-  let endPoint = process.env.MINIO_INTERNAL_URL
+  let endPoint = process.env.MINIO_HOST
   if (!endPoint) {
-    console.info('MINIO_CONSOLE_URL is not set. Did you deploy a MinIO service?')
+    console.info('MINIO_HOST is not set. Did you deploy a MinIO service?')
     console.info('If you are running this app locally, you can get the endpoint from the "domain" tab of MinIO service in the Zeabur dashboard.')
     process.exit(1)
   }
