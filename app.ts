@@ -18,7 +18,7 @@ const init = async () => {
       throw new Error('MINIO_HOST 未設置。您是否部署了 MinIO 服務？')
     }
 
-    const port = 443
+    const port = 9000
 
     const accessKey = process.env.MINIO_USERNAME
     if (!accessKey) {
