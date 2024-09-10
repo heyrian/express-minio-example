@@ -30,7 +30,7 @@ const init = async () => {
       throw new Error('MINIO_PASSWORD 未設置。您是否部署了 MinIO 服務？')
     }
 
-    const useSSL = true
+    const useSSL = false
 
     console.info('正在連接到 MinIO 存儲...')
     console.info(`連接詳情：endPoint=${endPoint}, port=${port}, useSSL=${useSSL}`)
