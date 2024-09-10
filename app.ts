@@ -24,7 +24,7 @@ const init = async () => {
     process.exit(1)
   }
 
-  const port = 9000
+  const port = 443
 
   const accessKey = process.env.MINIO_USERNAME
   if (!accessKey) {
