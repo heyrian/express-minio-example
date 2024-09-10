@@ -7,7 +7,7 @@ dotenv.config()
 
 const app = express();
 
-const bucketName = 'zeabur'
+let bucketName = process.env.MINIO_DEFAULT_BUCKET
 
 let minioClient: minio.Client;
 
