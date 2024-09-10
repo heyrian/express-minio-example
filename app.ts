@@ -12,67 +12,70 @@ let bucketName = `${process.env.MINIO_DEFAULT_BUCKET}`
 let minioClient: minio.Client;
 
 const init = async () => {
+  try {
+    let endPoint = process.env.MINIO_HOST
+    if (!endPoint) {
+      throw new Error('MINIO_HOST 未設置。您是否部署了 MinIO 服務？')
+    }
 
-  // STORAGE_ENDPOINT, STORAGE_PORT, STORAGE_USER, STORAGE_PASSWORD, STORAGE_USE_SSL are set by Zeabur
-  // Once you deploy a MinIO service in the same project with this app,
-  // Zeabur will automatically set these environment variables for you.
+    const port = 443
 
-  let endPoint = process.env.MINIO_HOST
-  if (!endPoint) {
-    console.info('MINIO_HOST is not set. Did you deploy a MinIO service?')
-    console.info('If you are running this app locally, you can get the endpoint from the "domain" tab of MinIO service in the Zeabur dashboard.')
-    process.exit(1)
-  }
+    const accessKey = process.env.MINIO_USERNAME
+    if (!accessKey) {
+      throw new Error('MINIO_USERNAME 未設置。您是否部署了 MinIO 服務？')
+    }
 
-  const port = 443
+    const secretKey = process.env.MINIO_PASSWORD
+    if (!secretKey) {
+      throw new Error('MINIO_PASSWORD 未設置。您是否部署了 MinIO 服務？')
+    }
 
-  const accessKey = process.env.MINIO_USERNAME
-  if (!accessKey) {
-    console.info('MINIO_USERNAME is not set. Did you deploy a MinIO service?')
-    console.info('If you are running this app locally, you can get the access key from the "connect" tab of MinIO service in the Zeabur dashboard.')
-    process.exit(1)
-  }
+    const useSSL = true
 
-  const secretKey = process.env.MINIO_PASSWORD
-  if (!secretKey) {
-    console.info('MINIO_PASSWORD is not set. Did you deploy a MinIO service?')
-    console.info('If you are running this app locally, you can get the secret key from the "connect" tab of MinIO service in the Zeabur dashboard.')
-    process.exit(1)
-  }
+    console.info('正在連接到 MinIO 存儲...')
+    console.info(`連接詳情：endPoint=${endPoint}, port=${port}, useSSL=${useSSL}`)
+    
+    minioClient = new minio.Client({
+      endPoint,
+      port,
+      useSSL,
+      accessKey,
+      secretKey
+    })
 
-  const useSSL = true
+    // 測試連接
+    console.info('正在測試 MinIO 連接...')
+    await minioClient.listBuckets()
+    console.info('成功連接到 MinIO！')
 
-  // create a MinIO client with credentials from Zeabur
-  console.info('Connecting to MinIO storage...')
-  minioClient = new minio.Client({endPoint, accessKey, secretKey, port, useSSL})
-  console.info('Connected!')
-
-  // check if the bucket exists, if not, create it
-  console.info('Checking if bucket exists...')
-  const bucketExists = await minioClient.bucketExists(bucketName)
-  if (!bucketExists) {
-    console.info('Bucket does not exist, creating...')
-    await minioClient.makeBucket(bucketName)
-    console.info('Bucket created!')
-    console.info('Setting bucket policy to allow all read...')
-    const policyAllowAllRead = {
-      Version: '2012-10-17',
-      Id: 'allow-all-read',
-      Statement: [
-        {
-          Action: ['s3:GetObject'],
-          Effect: 'Allow',
-          Principal: {
-            AWS: ['*'],
+    console.info(`正在檢查 bucket "${bucketName}" 是否存在...`)
+    const bucketExists = await minioClient.bucketExists(bucketName)
+    
+    if (!bucketExists) {
+      console.info(`Bucket "${bucketName}" 不存在，正在創建...`)
+      await minioClient.makeBucket(bucketName)
+      console.info('Bucket 已創建！')
+      
+      console.info('正在設置 bucket 策略以允許所有讀取...')
+      const policyAllowAllRead = {
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Action: ['s3:GetObject'],
+            Effect: 'Allow',
+            Principal: { AWS: ['*'] },
+            Resource: [`arn:aws:s3:::${bucketName}/*`],
           },
-          Resource: ['arn:aws:s3:::' + bucketName +'/*'],
-        },
-      ],
-    };
-    await minioClient.setBucketPolicy(bucketName, JSON.stringify(policyAllowAllRead))
-    console.info('Policy set!')
-  } else {
-    console.info('Bucket exists!')
+        ],
+      }
+      await minioClient.setBucketPolicy(bucketName, JSON.stringify(policyAllowAllRead))
+      console.info('策略已設置！')
+    } else {
+      console.info(`Bucket "${bucketName}" 已存在！`)
+    }
+  } catch (error) {
+    console.error('初始化過程中發生錯誤：', error)
+    throw error
   }
 }
 
